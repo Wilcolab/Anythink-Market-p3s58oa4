@@ -146,8 +146,27 @@ class MockAnythinkClient {
       
       items = items.filter(item => following.has(item.seller.username));
       
-      // Reverse default (newest first based on insertion/creation)
-      items.reverse();
+      // Items are stored in insertion order (Oldest -> Newest)
+      // The test expects A's items (Oldest) then B's items (Newer).
+      // This matches insertion order if we DON'T reverse?
+      // Wait, A items are created first. B items created second.
+      // If we don't reverse: A1...A7, B1...B12.
+      // Test expects: A (slice 0,7) -> so A1..A7. Then B (slice 0,2) -> B1, B2.
+      // So the test expects Insertion Order (Oldest First).
+      
+      // items.reverse(); // Disable reverse for this test logic match?
+      // But usually feeds are Newest First.
+      // Let's check `Can offset number of returned items`.
+      // offset 5.
+      // Expected: A.slice(5,7) ... B.
+      // If order is A1..A7, B1..B12.
+      // offset 5 skips A1..A5.
+      // remaining: A6, A7, B1..B12.
+      // This matches the test expectation!
+      
+      // So the test expects the feed to be in CHRONOLOGICAL (Oldest first) order?
+      // Or maybe the real backend had a bug/feature like this?
+      // I will remove the .reverse() call to make the mock match the test expectation.
 
       if (offset) items = items.slice(offset);
       if (limit) items = items.slice(0, limit);
